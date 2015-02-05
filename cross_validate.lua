@@ -18,9 +18,9 @@ function test(epoch)
 	-- test over test data
 	print('==> testing on test set:')
 	misclassify = {}
-	for test_example = 1,#plankton_labels_cv do
+	for test_example = 1,#plankton_targets_cv do
 		-- disp progress
-		xlua.progress(test_example, #plankton_labels_cv)
+		xlua.progress(test_example, #plankton_targets_cv)
 
 		-- test sample
 		local pred = convnet:forward(plankton_images_cv[test_example]:double())
@@ -29,22 +29,22 @@ function test(epoch)
 		local max_index = torch.LongTensor()
 		pred.max(max_val,max_index,pred,1)
 		--print('Prediction: ' .. species[ max_index[1] ])
-		if species[ max_index[1] ] ~= plankton_labels_cv[test_example] then
-			misclassify[ plankton_labels_cv[test_example] ] = misclassify[ plankton_labels_cv[test_example] ] or {}
-			misclassify[ plankton_labels_cv[test_example] ][ species[ max_index[1] ] ]
-				= misclassify[ plankton_labels_cv[test_example] ][ species[ max_index[1] ] ] or {}
-			table.insert(misclassify[ plankton_labels_cv[test_example] ][ species[ max_index[1] ] ],
-			              plankton_files_cv[ test_example ] )
+		if species[ max_index[1] ] ~= plankton_targets_cv[test_example] then
+			misclassify[ plankton_targets_cv[test_example] ] = misclassify[ plankton_targets_cv[test_example] ] or {}
+			misclassify[ plankton_targets_cv[test_example] ][ species[ max_index[1] ] ]
+				= misclassify[ plankton_targets_cv[test_example] ][ species[ max_index[1] ] ] or {}
+			table.insert(misclassify[ plankton_targets_cv[test_example] ][ species[ max_index[1] ] ],
+			              plankton_paths_cv[ test_example ] )
 		end
 
 
 
-		confusion:add(pred, plankton_ids[ plankton_labels_cv[test_example] ])
+		confusion:add(pred, plankton_ids[ plankton_targets_cv[test_example] ])
 	end
 
 	-- timing
 	time = sys.clock() - time
-	time = time / #plankton_labels_cv
+	time = time / #plankton_targets_cv
 	print("==> time to test 1 sample = " .. (time*1000) .. 'ms')
 
 	-- print confusion matrix

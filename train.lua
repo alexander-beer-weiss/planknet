@@ -12,9 +12,9 @@ function train(epoch)  -- epoch counts number of times through training data
 
 	local misclassify = {}
 
-	for batch_start_example = 1,#plankton_labels_train,opt.batchSize do
+	for batch_start_example = 1,#plankton_targets_train,opt.batchSize do
 		-- disp progress
-		xlua.progress(batch_start_example, #plankton_labels_train)
+		xlua.progress(batch_start_example, #plankton_targets_train)
 
 		-- create closure to evaluate f(X) and df/dX
 		local feval = function(x)
@@ -32,7 +32,7 @@ function train(epoch)  -- epoch counts number of times through training data
 					 
 	                 -- evaluate function for complete mini batch
 				     local batch_size = 0  -- keeps track of actual batch size (since last batch may be smaller)
-	                 for batch_example = batch_start_example,math.min(batch_start_example + opt.batchSize - 1, #plankton_labels_train) do
+	                 for batch_example = batch_start_example,math.min(batch_start_example + opt.batchSize - 1, #plankton_targets_train) do
 					    batch_size = batch_size + 1
 						
 	                    local output = convnet:forward(plankton_images_train[batch_example])
@@ -42,24 +42,24 @@ function train(epoch)  -- epoch counts number of times through training data
 						local max_index = torch.LongTensor()
 						output.max(max_val,max_index,output,1)
 						--print('Prediction: ' .. species[ max_index[1] ])
-						if species[ max_index[1] ] ~= plankton_labels_train[batch_example] then
-							misclassify[ plankton_labels_train[batch_example] ] = misclassify[ plankton_labels_train[batch_example] ] or {}
-							misclassify[ plankton_labels_train[batch_example] ][ species[ max_index[1] ] ]
-								= misclassify[ plankton_labels_train[batch_example] ][ species[ max_index[1] ] ] or {}
-							table.insert(misclassify[ plankton_labels_train[batch_example] ][ species[ max_index[1] ] ],
-							              plankton_files_train[ batch_example ] )
+						if species[ max_index[1] ] ~= plankton_targets_train[batch_example] then
+							misclassify[ plankton_targets_train[batch_example] ] = misclassify[ plankton_targets_train[batch_example] ] or {}
+							misclassify[ plankton_targets_train[batch_example] ][ species[ max_index[1] ] ]
+								= misclassify[ plankton_targets_train[batch_example] ][ species[ max_index[1] ] ] or {}
+							table.insert(misclassify[ plankton_targets_train[batch_example] ][ species[ max_index[1] ] ],
+							              plankton_paths_train[ batch_example ] )
 						end
 						--]]
 						
-	                    local err = criterion:forward(output, plankton_ids[ plankton_labels_train[batch_example] ])
+	                    local err = criterion:forward(output, plankton_ids[ plankton_targets_train[batch_example] ])
 	                    f = f + err
 						
 	                    -- estimate df/dW
-	                    local df_do = criterion:backward(output, plankton_ids[ plankton_labels_train[batch_example] ])
+	                    local df_do = criterion:backward(output, plankton_ids[ plankton_targets_train[batch_example] ])
 	                    convnet:backward(plankton_images_train[batch_example], df_do)
 						
 	                    -- update confusion
-	                    confusion:add(output, plankton_ids[ plankton_labels_train[batch_example] ])
+	                    confusion:add(output, plankton_ids[ plankton_targets_train[batch_example] ])
 	                 end
 					 
 	                 -- normalize gradients and f(X)
@@ -100,8 +100,8 @@ function train(epoch)  -- epoch counts number of times through training data
 	--print('==> saving convnet to '..filename)
 	--torch.save(filename, convnet)
 
-	plankton_images_train, plankton_labels_train, plankton_files_train
-	   = table_shuffle(plankton_images_train,plankton_labels_train, plankton_files_train)
+	plankton_images_train, plankton_targets_train, plankton_paths_train
+	   = table_shuffle(plankton_images_train,plankton_targets_train, plankton_paths_train)
 	
 	confusion:zero()
 
