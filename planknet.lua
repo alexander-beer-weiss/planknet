@@ -1,5 +1,7 @@
 
 require 'torch'
+torch.setdefaulttensortype('torch.FloatTensor')
+
 require 'nn'
 require 'xlua'  -- progress bar
 require 'optim'  -- confusion matrix; gradient decent optimization
@@ -8,13 +10,19 @@ require 'paths'  -- read OS directory structure
 require 'hdf5'  -- write and read to hdf5 format
 
 
+images_path = '../train'
+preprocessed_path = '../preprocessed'
+misclassdata_path = '../misclassified'
+
 
 
 dofile 'read_cmdLine.lua'  -- parse command line options, store in opt
 
 dofile 'helper_functions.lua'  -- maxdims, pad, table_shuffle
 
-dofile 'split_data.lua'  -- read in preprocessed data and splits into training + cross-validation
+dofile 'load_preprocessed.lua'  --  read in preprocessed data
+
+dofile 'split_data.lua'  --  splits preprocessed data into training + cross-validation
 
 dofile 'build_convnet.lua'  -- convnet = nn.Sequential()
 

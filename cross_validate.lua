@@ -1,7 +1,5 @@
 print '==> defining test procedure'
 
-misclassdata_path = '../misclassified'
-
 
 -- test function
 function test(epoch)
@@ -23,9 +21,9 @@ function test(epoch)
 		xlua.progress(test_example, #plankton_targets_cv)
 
 		-- test sample
-		local pred = convnet:forward(plankton_images_cv[test_example]:double())
+		local pred = convnet:forward(plankton_images_cv[test_example])
 
-		local max_val = torch.DoubleTensor()
+		local max_val = torch.Tensor()
 		local max_index = torch.LongTensor()
 		pred.max(max_val,max_index,pred,1)
 		--print('Prediction: ' .. species[ max_index[1] ])
@@ -52,7 +50,7 @@ function test(epoch)
 	confusion:zero()
 
 	-- print misclassifed cv examples to file
-	local misclass_stream = io.open(misclassdata_path..'/misclassdata.lua','a')
+	local misclass_stream = io.open(misclassdata_path..'/misclass_data.lua','a')
 	misclass_stream:write('table.insert(misclassified,')
 	misclass_stream:write('{')
 	for a,g in pairs(misclassify) do

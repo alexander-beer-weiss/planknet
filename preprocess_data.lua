@@ -3,10 +3,10 @@
 
 print '==> padding images'
 
-plankton_images, plankton_labels, plankton_files  = table_shuffle(plankton_images, plankton_labels, plankton_files)
+--plankton_images, plankton_labels, plankton_files  = table_shuffle(plankton_images, plankton_labels, plankton_files)
 
 -- scan through images and find the maximum dimensions; only consider first 100 images
-height, width = maxdims(plankton_images,100)
+height, width = maxdims(table_shuffle(plankton_images),100)
 
 -- we may need to accommadate larger images than what we've scanned through
 -- (images still larger than this will be cropped via pad function)
@@ -19,7 +19,7 @@ height,width = 128,128  -- Hack!!!  Program still crashes sometimes.  128x128 is
 
 
 -- make all images the same dimensions
-pad(plankton_images, height, width, true)  -- true inverts pixels (white <-> black) so that matrices become sparse
+pad(plankton_images, height, width, true, true)  -- true inverts pixels (white <-> black) so that matrices become sparse
 
 
 

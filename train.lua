@@ -5,10 +5,12 @@ function train(epoch)  -- epoch counts number of times through training data
 	-- local vars
 	local time = sys.clock()
 
-
 	-- do one epoch
 	print('==> doing epoch on training data:')
 	print("==> online epoch # " .. epoch .. ' [batchSize = ' .. opt.batchSize .. ']')
+	
+	plankton_images_train, plankton_targets_train, plankton_paths_train
+	   = table_shuffle(plankton_images_train,plankton_targets_train, plankton_paths_train)
 
 	local misclassify = {}
 
@@ -100,8 +102,6 @@ function train(epoch)  -- epoch counts number of times through training data
 	--print('==> saving convnet to '..filename)
 	--torch.save(filename, convnet)
 
-	plankton_images_train, plankton_targets_train, plankton_paths_train
-	   = table_shuffle(plankton_images_train,plankton_targets_train, plankton_paths_train)
 	
 	confusion:zero()
 
