@@ -8,6 +8,8 @@ require 'hdf5'  -- read and write to hdf5 format
 preprocessed_path = '../preprocessed'
 
 
+dofile 'helper_functions.lua'
+
 dofile 'load_data.lua'
 
 dofile 'preprocess_data.lua'

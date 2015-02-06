@@ -3,7 +3,7 @@
 
 print '==> padding images'
 
-plankton_images, plankton_labels, file_names = table_shuffle(plankton_images, plankton_labels, file_names)
+plankton_images, plankton_labels, plankton_files  = table_shuffle(plankton_images, plankton_labels, plankton_files)
 
 -- scan through images and find the maximum dimensions; only consider first 100 images
 height, width = maxdims(plankton_images,100)

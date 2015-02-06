@@ -18,9 +18,10 @@ preprocessed_path = '../preprocessed'
 dofile 'prep_data.lua'
 image_files = plankton_images
 image_targets = plankton_labels
-image_paths = file_names
+image_paths = plankton_files
 species = species
 -----DELETE------------DELETE------------DELETE------
+
 
 
 
@@ -38,13 +39,13 @@ plankton_targets_cv = {}  -- set aside (same) 20% for cross-validation
 plankton_paths_train = {}  -- file names, so we can visualize which ones our neural net misses
 plankton_paths_cv={}
 
-image_files = table_shuffle(image_files, image_targets, image_paths)
+image_files, image_targets, image_paths = table_shuffle(image_files, image_targets, image_paths)
 for i = 1,math.floor(#image_files*0.8) do -- 80% of examples used for training
 	table.insert(plankton_images_train,image_files[i])
 	table.insert(plankton_targets_train,image_targets[i])
 	table.insert(plankton_paths_train,image_paths[i])
 end
-for i = 1,math.floor(#image_files*0.8)+1 do  -- 20% of examples used for cross-validation
+for i = math.floor(#image_files*0.8)+1,#image_files do  -- 20% of examples used for cross-validation
 	table.insert(plankton_images_cv,image_files[i])
 	table.insert(plankton_targets_cv,image_targets[i])
 	table.insert(plankton_paths_cv,image_paths[i])
@@ -54,6 +55,8 @@ end
 -- store dimensions of images (note: all images are the same size due to padding)
 height = plankton_images[1]:size(2)
 width = plankton_images[1]:size(3)
+
+
 
 
 
