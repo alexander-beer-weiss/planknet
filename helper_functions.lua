@@ -24,88 +24,47 @@ end
 
 
 
+
+-- IMAGE_ARRAY SHOULD ACTUALLY BE ARRAY OF IMAGES AND THIS WHOLE THING NEEDS TO BE IN A FOR LOOP
 function pad(image_array, height, width, invert)
-	if invert == true then
-		padding = 0
-	else
-		padding = 1
-	end
-
-
-	for i = 1, #image_array do
-		local padded_image = torch.Tensor(1,height,width):fill(padding)
-		-- center image on padded canvas (probably not necessary for convolutional net but images display nicer in iTorch)
-		local canvas_height_offset, canvas_width_offset, image_height_offset, image_width_offset = 0,0,0,0
+	ones_array = torch.Tensor(1,height,width):fill(1)
+	for i = 1,#image_array do
+		local padded_image = torch.Tensor(1,height,width):fill(1)
+		local h_offset, w_offset = 0,0
 		if image_array[i]:size(2) < height then
-			canvas_height_offset = math.floor( (height - image_array[i]:size(2)) / 2 )
+			if image_array[i]:size(3) < width then
+				h_offset  = math.floor( (height - image_array[i]:size(2)) / 2 )
+				w_offset  = math.floor( (width - image_array[i]:size(3)) / 2 )
+				padded_image:sub(1,1,h_offset+1,h_offset+image_array[i]:size(2),w_offset+1,w_offset+image_array[i]:size(3))[1]
+				   = image_array[i][1]:clone()
+			else
+				h_offset  = math.floor( (height - image_array[i]:size(2)) / 2 )
+				w_offset  = math.floor( (image_array[i]:size(3) - width) / 2 )
+				padded_image:narrow(2,h_offset+1,image_array[i]:size(2))[1]
+				   = image_array[i]:narrow(3,w_offset+1,width)[1]:clone()
+			end
 		else
-			image_height_offset = math.floor( (image_array[i]:size(2) - height) / 2 )
-		end
-		if image_array[i]:size(3) < width then
-			canvas_width_offset = math.floor( (width - image_array[i]:size(3)) / 2 )
-		else
-			image_width_offset = math.floor( (image_array[i]:size(3) - width) / 2 )
-		end
-		for row = 1, math.min(image_array[i]:size(2), height) do  -- oversized images are simply cropped
-			for col = 1, math.min(image_array[i]:size(3), width) do
-				if invert == true then
-					--print(row + canvas_height_offset,col + canvas_width_offset,row + image_height_offset,col + image_width_offset)
-					padded_image[1][row + canvas_height_offset][col + canvas_width_offset]
-					  = 1 - image_array[i][1][row + image_height_offset][col + image_width_offset]  -- the [1] is the greyscale label index
-				else
-					padded_image[1][row + canvas_height_offset][col + canvas_width_offset]
-					  = image_array[i][1][row + image_height_offset][col + image_width_offset]
-				end
+			if image_array[i]:size(3) < width then
+				h_offset  = math.floor( (image_array[i]:size(2) - height) / 2 )
+				w_offset  = math.floor( (width - image_array[i]:size(3)) / 2 )
+				padded_image:narrow(3,w_offset+1,height)[1]
+				   = image_array[i]:narrow(2,h_offset+1,image_array[i]:size(2))[1]:clone()
+			else
+				h_offset  = math.floor( (image_array[i]:size(2) - height) / 2 )
+				w_offset  = math.floor( (image_array[i]:size(3) - width) / 2 )
+				padded_image[1]
+				   = image_array[i]:sub(1,1,h_offset+1,h_offset+height,w_offset+1,w_offset+width)[1]:clone()
 			end
 		end
-		image_array[i] = padded_image  -- overwrites original (unpadded) image
-	end
+		if invert then
+			image_array[i] = ones_array - padded_image
+		else
+			image_array[i] = padded_image
+		end
+	end	
 end
 
 
-
---[[
--- takes an array of images of type torch.Tensor(1, num_rows, num_cols), where num_rows and num_cols vary from image to image
--- returns an array of images of type torch.Tensor(1, height, width), where height and width are same for all images
--- optional parameter invert: if true inverts matrices (i.e., components go to 1-components) yielding a sparse matrix
-function pad(image_array, height, width, invert)
-	if invert == true then
-		padding = 0
-	else
-		padding = 1
-	end
-
-
-	for i = 1, #image_array do
-		local padded_image = torch.Tensor(1,height,width):fill(padding)
-		-- center image on padded canvas (probably not necessary for convolutional net but images display nicer in iTorch)
-		local canvas_height_offset, canvas_width_offset, image_height_offset, image_width_offset = 0,0,0,0
-		if image_array[i]:size(2) < height then
-			canvas_height_offset = math.floor( (height - image_array[i]:size(2)) / 2 )
-		else
-			image_height_offset = math.floor( (image_array[i]:size(2) - height) / 2 )
-		end
-		if image_array[i]:size(3) < width then
-			canvas_width_offset = math.floor( (width - image_array[i]:size(3)) / 2 )
-		else
-			image_width_offset = math.floor( (image_array[i]:size(3) - width) / 2 )
-		end
-		for row = 1, math.min(image_array[i]:size(2), height) do  -- oversized images are simply cropped
-			for col = 1, math.min(image_array[i]:size(3), width) do
-				if invert == true then
-					--print(row + canvas_height_offset,col + canvas_width_offset,row + image_height_offset,col + image_width_offset)
-					padded_image[1][row + canvas_height_offset][col + canvas_width_offset]
-					  = 1 - image_array[i][1][row + image_height_offset][col + image_width_offset]  -- the [1] is the greyscale label index
-				else
-					padded_image[1][row + canvas_height_offset][col + canvas_width_offset]
-					  = image_array[i][1][row + image_height_offset][col + image_width_offset]
-				end
-			end
-		end
-		image_array[i] = padded_image  -- overwrites original (unpadded) image
-	end
-end
---]]
 
 
 
