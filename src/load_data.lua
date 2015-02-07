@@ -7,7 +7,8 @@ plankton_files = {}  -- labels for images  ( array with values of type string )
 species = {}  -- an array of possible species
 species_count = {}  -- number of examples of a given species
 
-
+height=32
+width=32
 
 for _,dir in pairs(paths.dir(images_path)) do  -- loop through image directories (extract names of sub-directories)
 	if not string.match(dir,'^%.') then  -- ignore any directories (or files) starting with a period
@@ -16,7 +17,8 @@ for _,dir in pairs(paths.dir(images_path)) do  -- loop through image directories
 		for file in paths.files(images_path..'/'..dir) do  -- read in names of all jpeg files; make table of these names
 			if string.match(file,'%.jpg$') then
 				table.insert(plankton_files,file)
-				table.insert(plankton_images,image.load(images_path..'/'..dir..'/'..file,1,float))
+				local img = image.load(images_path..'/'..dir..'/'..file,1,float)
+				table.insert(plankton_images,image.scale(img,height,width))
 				table.insert(plankton_labels,dir)
 				file_count = file_count + 1
 			end	

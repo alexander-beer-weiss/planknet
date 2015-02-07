@@ -20,10 +20,7 @@ function maxdims(image_array, max_scan)
 		end
 	end
 	return maxheight, maxwidth
-end
-
-
-
+end    
 
 -- IMAGE_ARRAY SHOULD ACTUALLY BE ARRAY OF IMAGES AND THIS WHOLE THING NEEDS TO BE IN A FOR LOOP
 function pad(image_array, height, width, invert)

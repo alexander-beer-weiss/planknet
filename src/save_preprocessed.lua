@@ -16,8 +16,6 @@ end
 
 
 print '==> saving preprocessed data to disk'
-
-
 local image_Tensor = torch.Tensor(#plankton_images,1,height,width)
 
 

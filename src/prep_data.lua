@@ -16,7 +16,7 @@ dofile 'helper_functions.lua'
 
 dofile 'load_data.lua'
 
-dofile 'preprocess_data.lua'
+-- dofile 'preprocess_data.lua'
 
 dofile 'save_preprocessed.lua'
 
