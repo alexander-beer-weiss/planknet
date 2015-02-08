@@ -12,6 +12,7 @@ setmetatable(hdf5IO, {
 
 function hdf5IO.new(opt)
   local self = setmetatable({},hdf5IO)
+--   Just assuming the right parameters are here is lame and shitty
   for key, value in pairs(opt) do
     self[key] = value
   end
@@ -25,7 +26,7 @@ function hdf5IO:writeToHDF5(images,data)
     paths.mkdir(self.preprocesseddir)
   end
 
-  local ldat = torch.Tensor(#images,self.height,self.width)
+  local ldat = torch.Tensor(#images,1,self.height,self.width)
   for i = 1,#images do
     ldat[i] = images[i]:clone()
   end
@@ -33,8 +34,6 @@ function hdf5IO:writeToHDF5(images,data)
   f:write('images',ldat)
   f:close()
 
--- I would have preferred to use the "official" hdf5 for Lua. this allows writing strings. 
--- This is super hacky
   local file_stream = io.open(self.preprocesseddir..'/plankton_tables.lua','w')
   for table_name,table_data in pairs(data) do
           file_stream:write(table_name,'=')

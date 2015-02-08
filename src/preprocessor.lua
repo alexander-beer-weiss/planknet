@@ -11,6 +11,7 @@ setmetatable(preprocessor, {
 
 function preprocessor.new(opt)
   local self = setmetatable({},preprocessor)
+--   Just assuming the right parameters are here is lame and shitty
   for key, value in pairs(opt) do
     self[key] = value
   end
@@ -19,7 +20,6 @@ end
 
 function preprocessor:loadFromJPG()
   print 'Loading from JPG'
-  local ones_array = torch.Tensor(1,self.height,self.width):fill(1)
   local plankton_images = {}  -- array with values of type torch.DoubleTensor(num_channels, num_rows, num_cols)
   local plankton_labels = {}  -- the name of each species is read off from the directory containing the image
   local plankton_files = {}  -- labels for images  ( array with values of type string )
@@ -33,9 +33,11 @@ function preprocessor:loadFromJPG()
         if string.match(file,'%.jpg$') then
           table.insert(plankton_files,file)
           local img = image.load(self.trainingdir..'/'..dir..'/'..file,1,float)
-          img = ones_array - image.scale(img,self.height,self.width)
+          img = image.scale(img,self.height,self.width)
+          img = img - torch.mean(img)
+          img = img/torch.std(img)
 -- Insert rotations, inversions here
-          table.insert(plankton_images,img[1])
+          table.insert(plankton_images,img)
           table.insert(plankton_labels,dir)
           image_count = image_count + 1
         end

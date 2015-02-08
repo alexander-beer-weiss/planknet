@@ -2,7 +2,7 @@ print '==> defining test procedure'
 
 
 -- test function
-function test(epoch)
+function test(epoch,localNet)
 	
 	-- local vars
 	local time = sys.clock()
@@ -21,7 +21,7 @@ function test(epoch)
 		xlua.progress(test_example, #plankton_targets_cv)
 
 		-- test sample
-		local pred = convnet:forward(plankton_images_cv[test_example])
+		local pred = localNet:forward(plankton_images_cv[test_example])
 
 		local max_val = torch.Tensor()
 		local max_index = torch.LongTensor()
@@ -48,24 +48,6 @@ function test(epoch)
 	-- print confusion matrix
 	print(confusion)
 	confusion:zero()
-
-	-- print misclassifed cv examples to file
-	local misclass_stream = io.open(misclassdata_path..'/misclass_data.lua','a')
-	misclass_stream:write('table.insert(misclassified,')
-	misclass_stream:write('{')
-	for a,g in pairs(misclassify) do
-	  misclass_stream:write('["',a,'"]={')
-	  for b,h in pairs(g) do
-	    misclass_stream:write('["',b,'"]={')
-	    for _,i in ipairs(h) do
-	      misclass_stream:write('"',i,'",')
-	    end
-	    misclass_stream:write('},')
-	  end
-	  misclass_stream:write('},')
-	end
-	misclass_stream:write('})\n')
-	misclass_stream:close()
 
 	-- update log/plot
 	--testLogger:add{['% mean class accuracy (test set)'] = confusion.totalValid * 100}
