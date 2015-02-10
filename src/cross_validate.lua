@@ -28,7 +28,7 @@ function test(epoch,localNet)
 		local max_index = torch.LongTensor()
 		pred.max(max_val,max_index,pred,1)
 
-		score = score - math.log(pred[plankton_targets_cv[test_example]])
+		score = score - pred[plankton_targets_cv[test_example]]
 		
 		--print('Prediction: ' .. species[ max_index[1] ])
 		if species[ max_index[1] ] ~= plankton_targets_cv[test_example] then
