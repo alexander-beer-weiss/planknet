@@ -87,19 +87,18 @@ dofile 'config_optimizer.lua'  -- optim.sgd, optim.asgd, optim.lbfgs, optim.cg
 dofile 'train.lua'  -- train convnet
 dofile 'cross_validate.lua'  -- test convnet with cross-validation data
 
+if not paths.dir(opt.netDatadir) then
+  print('==> creating directory '..opt.netDatadir)
+  paths.mkdir(opt.netDatadir)
+end
+
 local epoch = 0
 local scan = true
 while epoch ~= opt.maxEpoch do
         epoch = epoch + 1               
         train(epoch,myNet.net)
         test(epoch,myNet.net)
+        torch.save(opt.netDatadir..'/NN_'..epoch..'.dat', myNet)
 end
 
-
-print '==> saving neural net to file'
-if not paths.dir(opt.netDatadir) then
-  print('==> creating directory '..opt.netDatadir)
-  paths.mkdir(opt.netDatadir)
-end
-torch.save(opt.netDatadir..'/NN.dat', myNet)
 
