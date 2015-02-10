@@ -19,6 +19,7 @@ cmd:option('-trainingdir', '../train', 'location of training directory')
 cmd:option('-testingdir', '../test', 'location of testing directory')
 cmd:option('-misclassifieddir', '../misclassdata_path', 'location of misclassified directory')
 cmd:option('-preprocesseddir', '../preprocessed', 'location of preprocessed directory')
+cmd:option('-netDatadir', '../NNsave', 'location of neural net data directory')
 cmd:option('-save', 'results', 'subdirectory to save/log experiments in')
 cmd:option('-visualize', false, 'visualize input data and weights during training')
 cmd:option('-plot', false, 'live plot')
@@ -81,6 +82,7 @@ myNet = convNet(opt)
 -- then we can write a bash script to scan input space and find the best settings
 parameters,gradParameters = myNet:build({1,64,64,128,#species}, 2, 5)
 
+
 dofile 'config_optimizer.lua'  -- optim.sgd, optim.asgd, optim.lbfgs, optim.cg 
 dofile 'train.lua'  -- train convnet
 dofile 'cross_validate.lua'  -- test convnet with cross-validation data
@@ -92,3 +94,12 @@ while epoch ~= opt.maxEpoch do
         train(epoch,myNet.net)
         test(epoch,myNet.net)
 end
+
+
+print '==> saving neural net to file'
+if not paths.dir(opt.netDatadir) then
+  print('==> creating directory '..opt.netDatadir)
+  paths.mkdir(opt.netDatadir)
+end
+torch.save(opt.netDatadir..'/NN.dat', myNet)
+
