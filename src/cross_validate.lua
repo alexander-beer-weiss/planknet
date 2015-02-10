@@ -1,5 +1,5 @@
 print '==> defining test procedure'
-
+require 'math'
 
 -- test function
 function test(epoch,localNet)
@@ -16,6 +16,7 @@ function test(epoch,localNet)
 	-- test over test data
 	print('==> testing on test set:')
 	misclassify = {}
+	score=0
 	for test_example = 1,#plankton_targets_cv do
 		-- disp progress
 		xlua.progress(test_example, #plankton_targets_cv)
@@ -26,6 +27,9 @@ function test(epoch,localNet)
 		local max_val = torch.Tensor()
 		local max_index = torch.LongTensor()
 		pred.max(max_val,max_index,pred,1)
+
+		score = score - math.log(pred[plankton_targets_cv[test_example]])
+		
 		--print('Prediction: ' .. species[ max_index[1] ])
 		if species[ max_index[1] ] ~= plankton_targets_cv[test_example] then
 			misclassify[ plankton_targets_cv[test_example] ] = misclassify[ plankton_targets_cv[test_example] ] or {}
@@ -39,6 +43,7 @@ function test(epoch,localNet)
 
 		confusion:add(pred, plankton_ids[ plankton_targets_cv[test_example] ])
 	end
+	score=score/#plankton_targets_cv
 
 	-- timing
 	time = sys.clock() - time
@@ -47,6 +52,7 @@ function test(epoch,localNet)
 
 	-- print confusion matrix
 	print(confusion)
+	print('Score: '..score)
 	confusion:zero()
 
 	-- update log/plot
