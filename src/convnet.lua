@@ -37,19 +37,21 @@ function convNet:build(dimensions, n_pools, n_filter)
     self.net:add(nn.SpatialLPPooling(dimensions[i+1],2,n_pools,n_pools,n_pools,n_pools))
     self.net:add(nn.SpatialSubtractiveNormalization(dimensions[i+1], normkernel))
   end
+--   N-2 layer
   local linearFeatDim = dimensions[n_dimensions-2] * (((self.height-n_filter+1)/n_pools - n_filter + 1 )/n_pools)  * (((width-n_filter+1)/n_pools - n_filter + 1 )/n_pools)
 --   print('feature dim: ' .. linearFeatDim )
   self.net:add(nn.Reshape(linearFeatDim))
   if self.dropout[2] and self.dropout[2] ~= 0 then self.net:add(nn.Dropout(self.dropout[1])) end
+  
+--   N-1 Layer
   self.net:add(nn.Linear(linearFeatDim, dimensions[n_dimensions-1]))
   self.net:add(trans_layer[self.transfer]())
   if self.dropout[1] and self.dropout[1] ~= 0 then self.net:add(nn.Dropout(self.dropout[1])) end
   self.net:add(nn.Linear(dimensions[n_dimensions-1], dimensions[n_dimensions]))
+
+--   Final Layer
   self.net:add(nn.LogSoftMax())
   
-  criterion = nn.ClassNLLCriterion()
-  parameters,gradParameters = self.net:getParameters()
-  return parameters,gradParameters
+  self.criterion = nn.ClassNLLCriterion()
+  self.parameters, self.gradParameters = self.net:getParameters()
 end  
-  
-

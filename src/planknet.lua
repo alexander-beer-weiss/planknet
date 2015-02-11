@@ -88,7 +88,7 @@ confusion = optim.ConfusionMatrix(species)
 myNet = convNet(opt)
 -- this is the definition of the net. we will rewrite the command line arguments to be able to define this and some options at runtime.
 -- then we can write a bash script to scan input space and find the best settings
-parameters,gradParameters = myNet:build({1,64,64,128,#species}, 2, 5)
+myNet:build({1,64,64,128,#species}, 2, 5)
 
 
 dofile 'config_optimizer.lua'  -- optim.sgd, optim.asgd, optim.lbfgs, optim.cg 
@@ -104,9 +104,10 @@ local epoch = 0
 local scan = true
 while epoch ~= opt.maxEpoch do
         epoch = epoch + 1               
-        train(epoch,myNet.net)
-        test(epoch,myNet.net)
+        train(epoch,myNet)
+        scores = test(epoch,myNet)
         torch.save(opt.netDatadir..'/NN_'..epoch..'.dat', myNet)
+        torch.save(opt.netDatadir..'/NN_'..epoch..'.scr', scores)
 end
 
 
