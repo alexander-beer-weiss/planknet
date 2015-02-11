@@ -43,7 +43,7 @@ function convNet:build(dimensions, n_pools, n_filter)
   if self.dropout[2] and self.dropout[2] ~= 0 then self.net:add(nn.Dropout(self.dropout[1])) end
   self.net:add(nn.Linear(linearFeatDim, dimensions[n_dimensions-1]))
   self.net:add(trans_layer[self.transfer]())
-  if self.dropout[1] and self.dropout[1] ~= 0 then self.net:add(nn.Dropout(self.dropout[2])) end
+  if self.dropout[1] and self.dropout[1] ~= 0 then self.net:add(nn.Dropout(self.dropout[1])) end
   self.net:add(nn.Linear(dimensions[n_dimensions-1], dimensions[n_dimensions]))
   self.net:add(nn.LogSoftMax())
   
