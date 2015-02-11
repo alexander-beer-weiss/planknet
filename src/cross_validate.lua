@@ -28,7 +28,7 @@ function test(epoch,localNet)
 		local max_index = torch.LongTensor()
 		pred.max(max_val,max_index,pred,1)
 
-		score = score - pred[ plankton_ids[ plankton_targets_cv[test_example] ] ]
+		score = score - min(pred[ plankton_ids[ plankton_targets_cv[test_example] ] ],16)
 		
 		--print('Prediction: ' .. species[ max_index[1] ])
 		if species[ max_index[1] ] ~= plankton_targets_cv[test_example] then
@@ -67,4 +67,5 @@ function test(epoch,localNet)
 		-- restore parameters
 		parameters:copy(cachedparams)
 	end
+        return {score=score }
 end
