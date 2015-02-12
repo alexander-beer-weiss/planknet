@@ -36,57 +36,43 @@ function train(epoch,net)  -- epoch counts number of times through training data
     
     -- create closure to evaluate f(X) and df/dX
     local feval = function(x)
-    -- get new net.parameters
-    if x ~= net.parameters then
-      net.parameters:copy(x)
+      -- get new net.parameters
+      if x ~= net.parameters then
+        net.parameters:copy(x)
+      end
+      --print(net.parameters)
+      
+      -- reset gradients
+      net.gradParameters:zero()
+      
+      -- f is the average of all net.criterions
+      local f = 0
+      
+      -- evaluate function for complete mini batch
+      local batch_size = 0  -- keeps track of actual batch size (since last batch may be smaller)
+      for batch_example = batch_start_example,math.min(batch_start_example + opt.batchSize - 1, #plankton_targets_train) do
+        batch_size = batch_size + net:n_batch()
+        local output = net:augmentedForwardNet(plankton_images_train[batch_example])
+        local err = net:augmentedForwardCriterion(output, plankton_ids[ plankton_targets_train[batch_example] ])
+        for i=1,net:n_batch() do
+          f = f + err[i]
+        end
+        -- estimate df/dW
+        local df_do = net:augmentedBackwardsCriterion(output, plankton_ids[ plankton_targets_train[batch_example] ])
+        net:augmentedBackwardsNet(plankton_images_train[batch_example], df_do)
+        -- update confusion
+        for i=1,net:n_batch() do
+          confusion:add(output[i], plankton_ids[ plankton_targets_train[batch_example] ])
+        end
+      end
+      
+      -- normalize gradients and f(X)
+      net.gradParameters:div(batch_size)
+      f = f / batch_size
+      
+      -- return f and df/dX
+      return f,net.gradParameters
     end
-    --print(net.parameters)
-    
-    -- reset gradients
-    net.gradParameters:zero()
-    
-    -- f is the average of all net.criterions
-    local f = 0
-    
-    -- evaluate function for complete mini batch
-    local batch_size = 0  -- keeps track of actual batch size (since last batch may be smaller)
-    for batch_example = batch_start_example,math.min(batch_start_example + opt.batchSize - 1, #plankton_targets_train) do
-      batch_size = batch_size + 1
-      
-      local output = net.net:forward(plankton_images_train[batch_example])
-      
-      --[[
-      local max_val = torch.DoubleTensor()
-      local max_index = torch.LongTensor()
-      output.max(max_val,max_index,output,1)
-      --print('Prediction: ' .. species[ max_index[1] ])
-      if species[ max_index[1] ] ~= plankton_targets_train[batch_example] then
-      misclassify[ plankton_targets_train[batch_example] ] = misclassify[ plankton_targets_train[batch_example] ] or {}
-      misclassify[ plankton_targets_train[batch_example] ][ species[ max_index[1] ] ]
-      = misclassify[ plankton_targets_train[batch_example] ][ species[ max_index[1] ] ] or {}
-      table.insert(misclassify[ plankton_targets_train[batch_example] ][ species[ max_index[1] ] ],
-      plankton_paths_train[ batch_example ] )
-    end
-      --]]
-      
-      local err = net.criterion:forward(output, plankton_ids[ plankton_targets_train[batch_example] ])
-      f = f + err
-      
-      -- estimate df/dW
-      local df_do = net.criterion:backward(output, plankton_ids[ plankton_targets_train[batch_example] ])
-      net.net:backward(plankton_images_train[batch_example], df_do)
-      
-      -- update confusion
-      confusion:add(output, plankton_ids[ plankton_targets_train[batch_example] ])
-    end
-    
-    -- normalize gradients and f(X)
-    net.gradParameters:div(batch_size)
-    f = f / batch_size
-    
-    -- return f and df/dX
-    return f,net.gradParameters
-  end
   
   -- optimize on current mini-batch
   if optimMethod == optim.asgd then

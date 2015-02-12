@@ -1,5 +1,6 @@
 require 'nn'
 require 'image'
+require 'underscore'
 
 convNet = {}
 convNet.__index = convNet
@@ -54,4 +55,52 @@ function convNet:build(dimensions, n_pools, n_filter)
   
   self.criterion = nn.ClassNLLCriterion()
   self.parameters, self.gradParameters = self.net:getParameters()
-end  
+end
+
+function convNet:n_batch()
+  return 8
+end
+
+function convNet:augmentedForwardNet(img)
+  local output={}
+  output[1] = self.net:forward(img)
+  output[2] = self.net:forward(image.hflip(img))
+--   translate, invert, rotate
+  local tmp_img = img
+  for i=1,3 do
+    tmp_img = image.rotate(tmp_img,math.pi*0.5)
+    output[2*i+1] = self.net:forward(tmp_img)
+    output[2*i+2] = self.net:forward(image.hflip(tmp_img))
+  end
+  return output
+end
+
+function convNet:augmentedForwardCriterion(output, label)
+  local err = {}
+  for i=1,8 do
+    err[i] = self.criterion:forward(output[i],label)
+  end
+  return err
+end
+
+function convNet:augmentedBackwardsNet(img,df_dw)
+  local output={}
+  output[1] = self.net:backward(img,df_dw[1])
+  output[2] = self.net:backward(image.hflip(img),df_dw[2])
+--   translate, invert, rotate
+  local tmp_img = img
+  for i=1,3 do
+    tmp_img = image.rotate(tmp_img,math.pi*0.5)
+    output[2*i+1] = self.net:backward(tmp_img,df_dw[2*i+1])
+    output[2*i+2] = self.net:backward(image.hflip(tmp_img),df_dw[2*i+2])
+  end
+  return output
+end
+
+function convNet:augmentedBackwardsCriterion(output, label)
+  local err = {}
+  for i=1,8 do
+    err[i] = self.criterion:backward(output[i],label)
+  end
+  return err
+end
