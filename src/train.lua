@@ -52,14 +52,8 @@ function train(epoch,net)  -- epoch counts number of times through training data
       local batch_size = 0  -- keeps track of actual batch size (since last batch may be smaller)
       for batch_example = batch_start_example,math.min(batch_start_example + opt.batchSize - 1, #plankton_targets_train) do
         batch_size = batch_size + net:n_batch()
-        local output = net:augmentedForwardNet(plankton_images_train[batch_example])
-        local err = net:augmentedForwardCriterion(output, plankton_ids[ plankton_targets_train[batch_example] ])
-        for i=1,net:n_batch() do
-          f = f + err[i]
-        end
-        -- estimate df/dW
-        local df_do = net:augmentedBackwardsCriterion(output, plankton_ids[ plankton_targets_train[batch_example] ])
-        net:augmentedBackwardsNet(plankton_images_train[batch_example], df_do)
+        local err, output = net:augmentedTrainStep(plankton_images_train[batch_example], plankton_ids[ plankton_targets_train[batch_example] ])
+        f = f + err
         -- update confusion
         for i=1,net:n_batch() do
           confusion:add(output[i], plankton_ids[ plankton_targets_train[batch_example] ])

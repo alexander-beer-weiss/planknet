@@ -61,46 +61,31 @@ function convNet:n_batch()
   return 8
 end
 
-function convNet:augmentedForwardNet(img)
-  local output={}
-  output[1] = self.net:forward(img)
-  output[2] = self.net:forward(image.hflip(img))
---   translate, invert, rotate
+function convNet:trainStep(img,label)
+  local output=self.net:forward(img)
+  local err = self.criterion:forward(output,label)
+  local df_dw = self.criterion:backward(output,label)
+  self.net:backward(img,df_dw)
+  return {err=err, output=output}
+end
+
+function convNet:augmentedTrainStep(img,label)
+  local val = self:trainStep(img,label)
+  local err = val['err']
+  local output = {}
+  table.insert(output, val['output'])
+  val = self:trainStep(image.hflip(img),label)
+  err = err + val['err']
+  table.insert(output, val['output'])
   local tmp_img = img
   for i=1,3 do
     tmp_img = image.rotate(tmp_img,math.pi*0.5)
-    output[2*i+1] = self.net:forward(tmp_img)
-    output[2*i+2] = self.net:forward(image.hflip(tmp_img))
+    val = self:trainStep(tmp_img,label)
+    err = err + val['err']
+    table.insert(output, val['output'])
+    val = self:trainStep(image.hflip(tmp_img),label) 
+    err = err + val['err']
+    table.insert(output, val['output'])
   end
-  return output
-end
-
-function convNet:augmentedForwardCriterion(output, label)
-  local err = {}
-  for i=1,8 do
-    err[i] = self.criterion:forward(output[i],label)
-  end
-  return err
-end
-
-function convNet:augmentedBackwardsNet(img,df_dw)
-  local output={}
-  output[1] = self.net:backward(img,df_dw[1])
-  output[2] = self.net:backward(image.hflip(img),df_dw[2])
---   translate, invert, rotate
-  local tmp_img = img
-  for i=1,3 do
-    tmp_img = image.rotate(tmp_img,math.pi*0.5)
-    output[2*i+1] = self.net:backward(tmp_img,df_dw[2*i+1])
-    output[2*i+2] = self.net:backward(image.hflip(tmp_img),df_dw[2*i+2])
-  end
-  return output
-end
-
-function convNet:augmentedBackwardsCriterion(output, label)
-  local err = {}
-  for i=1,8 do
-    err[i] = self.criterion:backward(output[i],label)
-  end
-  return err
+  return err, output
 end
