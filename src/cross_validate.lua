@@ -4,7 +4,7 @@ require 'math'
 -- test function
 function test(epoch,netObject)  -- epoch counts number of times through training data
 
-  localNet = netObject.getNet()
+  localNet = netObject:getNet()
   -- local vars
   local time = sys.clock()
   

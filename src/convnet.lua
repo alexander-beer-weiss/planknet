@@ -18,6 +18,10 @@ function convNet.new(opt)
   return self
 end
 
+function convNet:getNet()
+  return self.net
+end
+  
 
 -- in Lua functions are first class citizens
 local trans_layer ={}
