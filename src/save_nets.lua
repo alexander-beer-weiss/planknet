@@ -88,23 +88,38 @@ end
 
 
 
-function save_nets:saveBestNet(NN_idx,date_string)
+function save_nets:saveBestNet(NN_idx,date_string,hyperParams)
 	if not paths.dir(self.netDatadir .. '/bestNets') then
 		print('==> creating directory ' .. self.netDatadir .. '/bestNets')
 		paths.mkdir(self.netDatadir .. '/bestNets')
 	end
-	local save_dir = date_stamp(date_string)
-	if not paths.dir(self.netDatadir .. '/bestNets/' .. save_dir) then
-		print('==> creating directory ' .. self.netDatadir .. '/bestNets/' .. save_dir)
-		paths.mkdir(self.netDatadir .. '/bestNets/' .. save_dir)
+	
+	local date_dir = date_stamp(date_string)
+	if not paths.dir(self.netDatadir .. '/bestNets/' .. date_dir) then
+		print('==> creating directory ' .. self.netDatadir .. '/bestNets/' .. date_dir)
+		paths.mkdir(self.netDatadir .. '/bestNets/' .. date_dir)
 	end
 	
-	local save_file = 'NN_' .. time_stamp(date_string) .. '.dat'
+	local time_dir = time_stamp(date_string)
+	local time_append = ''
+	if paths.dir(self.netDatadir .. '/bestNets/' .. date_dir .. '/' .. time_dir) then
+		time_append = '_other' -- hack!
+	end	
+	print('==> creating directory ' .. self.netDatadir .. '/bestNets/' .. date_dir .. '/' .. time_dir)
+	paths.mkdir(self.netDatadir .. '/bestNets/' .. date_dir .. '/' .. time_dir .. time_append)
+
 	os.execute('cp ' .. self.netDatadir .. '/newNets/NN_' .. NN_idx ..'.dat '
-	                 .. self.netDatadir .. '/bestNets/' .. save_dir .. '/' .. save_file)
-					 
-	os.execute('ln -f -s ' .. self.netDatadir .. '/bestNets/' .. save_dir .. '/' .. save_file .. ' '
+	                 .. self.netDatadir .. '/bestNets/' .. date_dir .. '/' .. time_dir .. time_append .. '/NN.dat')
+
+	if hyperParams then
+		torch.save(self.netDatadir .. '/bestNets/' .. date_dir .. '/' .. time_dir .. time_append .. '/hyperParams.dat', hyperParams)
+	end
+
+	os.execute('ln -f -s ' .. self.netDatadir .. '/bestNets/' .. date_dir .. '/' .. time_dir .. time_append .. '/NN.dat' .. ' '
 	                       .. self.netDatadir .. '/NN.dat')
+
 end
+
+
 
 	

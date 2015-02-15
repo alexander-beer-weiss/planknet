@@ -115,4 +115,4 @@ end
 local min_val = torch.Tensor()
 local min_index = torch.LongTensor()
 torch.min(min_val,min_index,torch.Tensor(scores),1)
-netSaver:saveBestNet(min_index[1],time_stamps[ min_index[1] ]) -- should probably save opt values alongside nets
+netSaver:saveBestNet(min_index[1],time_stamps[ min_index[1] ],opt) -- should probably save opt values alongside nets
