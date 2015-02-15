@@ -94,19 +94,25 @@ parameters,gradParameters = myNet:build({1,64,64,128,#species}, 2, 5)
 dofile 'config_optimizer.lua'  -- optim.sgd, optim.asgd, optim.lbfgs, optim.cg 
 dofile 'train.lua'  -- train convnet
 dofile 'cross_validate.lua'  -- test convnet with cross-validation data
+dofile 'save_nets.lua'
 
-if not paths.dir(opt.netDatadir) then
-  print('==> creating directory '..opt.netDatadir)
-  paths.mkdir(opt.netDatadir)
-end
+netSaver = save_nets(opt)
+netSaver:prepNNdirs()
 
 local epoch = 0
-local scan = true
+local scores = {}
+local time_stamps = {}
 while epoch ~= opt.maxEpoch do
         epoch = epoch + 1               
         train(epoch,myNet.net)
-        test(epoch,myNet.net)
-        torch.save(opt.netDatadir..'/NN_'..epoch..'.dat', myNet)
+        local score = test(epoch,myNet.net)
+		netSaver:saveNN(epoch,myNet)
+		table.insert(scores,score)
+		table.insert(time_stamps,os.date())
 end
 
-
+-- copy net with minimal cross-validation score to NN.dat
+local min_val = torch.Tensor()
+local min_index = torch.LongTensor()
+torch.min(min_val,min_index,torch.Tensor(scores),1)
+netSaver:saveBestNet(min_index[1],time_stamps[ min_index[1] ]) -- should probably save opt values alongside nets

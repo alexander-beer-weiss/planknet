@@ -19,7 +19,7 @@ end
 
 function test_loader:loadNet()
 	print '==> loading neural net'
-	self.convNetObj = torch.load(self.netDatadir..'/NN.dat')
+	self.convNetObj = torch.load(self.netDatadir .. '/NN.dat')
 end
 
 function test_loader:loadFileNames()

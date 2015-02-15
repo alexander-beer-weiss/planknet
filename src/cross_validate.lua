@@ -16,7 +16,7 @@ function test(epoch,localNet)
 	-- test over test data
 	print('==> testing on test set:')
 	misclassify = {}
-	score=0
+	local points = torch.Tensor(#plankton_targets_cv)
 	for test_example = 1,#plankton_targets_cv do
 		-- disp progress
 		xlua.progress(test_example, #plankton_targets_cv)
@@ -27,8 +27,6 @@ function test(epoch,localNet)
 		local max_val = torch.Tensor()
 		local max_index = torch.LongTensor()
 		pred.max(max_val,max_index,pred,1)
-
-		score = score - pred[ plankton_ids[ plankton_targets_cv[test_example] ] ]
 		
 		--print('Prediction: ' .. species[ max_index[1] ])
 		if species[ max_index[1] ] ~= plankton_targets_cv[test_example] then
@@ -39,11 +37,11 @@ function test(epoch,localNet)
 			              plankton_paths_cv[ test_example ] )
 		end
 
-
+		points[test_example] = - pred[ plankton_ids[ plankton_targets_cv[test_example] ] ]
 
 		confusion:add(pred, plankton_ids[ plankton_targets_cv[test_example] ])
 	end
-	score = score / #plankton_targets_cv
+	points:div(#plankton_targets_cv)
 
 	-- timing
 	time = sys.clock() - time
@@ -51,8 +49,11 @@ function test(epoch,localNet)
 	print("==> time to test 1 sample = " .. (time*1000) .. 'ms')
 
 	-- print confusion matrix
-	print(confusion)
-	print('Score: '..score)
+	-- print(confusion)
+	local score = torch.sum(points)
+	print('Score: ' .. score)
+	--torch.save('../logprob/points_'..epoch..'.dat', torch.Tensor(points) )
+
 	confusion:zero()
 
 	-- update log/plot
@@ -67,4 +68,6 @@ function test(epoch,localNet)
 		-- restore parameters
 		parameters:copy(cachedparams)
 	end
+	
+	return(score)
 end
