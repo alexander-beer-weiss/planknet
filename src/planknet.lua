@@ -24,15 +24,15 @@ cmd:option('-save', 'results', 'subdirectory to save/log experiments in')
 cmd:option('-visualize', false, 'visualize input data and weights during training')
 cmd:option('-plot', false, 'live plot')
 cmd:option('-optimization', 'SGD', 'optimization method: SGD | ASGD | CG | LBFGS')
-cmd:option('-learningRate', 1e-3, 'learning rate at t=0')  -- could make this variable.  Start big and decay.
-cmd:option('-batchSize', 1, 'mini-batch size (1 = pure stochastic)')
-cmd:option('-weightDecay', 0, 'weight decay (SGD only)')
-cmd:option('-transfer', 'Tanh', 'transfer function: Tanh | ReLU | Sigmoid')
-cmd:option('-dropout', '', 'fraction of connections to drop: comma seperated numbers in the range 0 to 1')
+cmd:option('-learningRate', 1e-2, 'learning rate at t=0')  -- could make this variable.  Start big and decay.
+cmd:option('-batchSize', 10, 'mini-batch size (1 = pure stochastic)')
+cmd:option('-weightDecay', 0.0, 'weight decay (SGD only)')
+cmd:option('-transfer', 'ReLU', 'transfer function: Tanh | ReLU | Sigmoid')
+cmd:option('-dropout', '0,0,0,0', 'fraction of connections to drop: comma seperated numbers in the range 0 to 1')
 cmd:option('-momentum', 0, 'momentum (SGD only)')
-cmd:option('-t0', 1, 'start averaging at t0 (ASGD only), in nb of epochs')
+cmd:option('-t0', 4, 'start averaging at t0 (ASGD only), in nb of epochs')
 cmd:option('-maxIter', 2, 'maximum nb of iterations for CG and LBFGS')
-cmd:option('-maxEpoch', 100, 'maximum number of epochs during training')  -- set to -1 for unlimited epochs
+cmd:option('-maxEpoch', 20, 'maximum number of epochs during training')  -- set to -1 for unlimited epochs
 cmd:text()
 opt = cmd:parse(arg or {})
 
@@ -88,7 +88,8 @@ confusion = optim.ConfusionMatrix(species)
 myNet = convNet(opt)
 -- this is the definition of the net. we will rewrite the command line arguments to be able to define this and some options at runtime.
 -- then we can write a bash script to scan input space and find the best settings
-myNet:build({1,64,64,128,#species}, 2, 5)
+-- myNet:build({1,64,128,64,#species}, 2, 2)
+myNet:build({36,64}, {3,2,2}, {1,1,1}, {2,2,2})
 
 
 dofile 'config_optimizer.lua'  -- optim.sgd, optim.asgd, optim.lbfgs, optim.cg 
