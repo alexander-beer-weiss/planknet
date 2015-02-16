@@ -92,6 +92,11 @@ function convNet:build(dimensions, kW, dW, pools)
   self.parameters, self.gradParameters = self.net:getParameters()
 end
 
+function convNet:reset()
+  self.parameters, self.gradParameters = self.net:getParameters()
+end
+
+
 function convNet:n_batch()
   return 8
 end

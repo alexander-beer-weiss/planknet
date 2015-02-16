@@ -33,6 +33,7 @@ cmd:option('-momentum', 0, 'momentum (SGD only)')
 cmd:option('-t0', 4, 'start averaging at t0 (ASGD only), in nb of epochs')
 cmd:option('-maxIter', 2, 'maximum nb of iterations for CG and LBFGS')
 cmd:option('-maxEpoch', 20, 'maximum number of epochs during training')  -- set to -1 for unlimited epochs
+cmd:option('-loadNet', '', 'load from previous opt')
 cmd:text()
 opt = cmd:parse(arg or {})
 
@@ -89,8 +90,13 @@ myNet = convNet(opt)
 -- this is the definition of the net. we will rewrite the command line arguments to be able to define this and some options at runtime.
 -- then we can write a bash script to scan input space and find the best settings
 -- myNet:build({1,64,128,64,#species}, 2, 2)
-myNet:build({64,128}, {5,3,2}, {1,1,1}, {2,2,1})
 
+if opt.loadNet~='' then
+  print( 'Loading '.. opt.netDatadir..'/'..opt.loadNet..'.dat')
+  myNet = torch.load(opt.netDatadir..'/'..opt.loadNet..'.dat')
+else
+  myNet:build({64,128}, {5,3,2}, {1,1,1}, {2,2,1})
+end
 
 dofile 'config_optimizer.lua'  -- optim.sgd, optim.asgd, optim.lbfgs, optim.cg 
 dofile 'train.lua'  -- train convnet
@@ -101,13 +107,15 @@ if not paths.dir(opt.netDatadir) then
   paths.mkdir(opt.netDatadir)
 end
 
+
+
 local epoch = 0
 local scan = true
 while epoch ~= opt.maxEpoch do
         epoch = epoch + 1               
         train(epoch,myNet)
-        scores = test(epoch,myNet)
         torch.save(opt.netDatadir..'/NN_'..epoch..'.dat', myNet)
+        scores = test(epoch,myNet)
         torch.save(opt.netDatadir..'/NN_'..epoch..'.scr', scores)
 end
 
