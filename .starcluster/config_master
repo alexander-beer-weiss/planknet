@@ -1,0 +1,173 @@
+####################################
+## StarCluster Configuration File ##
+####################################
+[global]
+DEFAULT_TEMPLATE=smallcluster
+#ENABLE_EXPERIMENTAL=True
+#REFRESH_INTERVAL=15
+#WEB_BROWSER=chrome
+
+#############################################
+## AWS Credentials and Connection Settings ##
+#############################################
+[aws info]
+AWS_ACCESS_KEY_ID = AWS_KID
+AWS_SECRET_ACCESS_KEY = AWS_KEY
+AWS_USER_ID = AWS_UID
+
+# Uncomment to specify a different Amazon AWS region  (OPTIONAL)
+# (defaults to us-east-1 if not specified)
+#AWS_REGION_NAME = eu-west-1
+#AWS_REGION_HOST = ec2.eu-west-1.amazonaws.com
+# Uncomment these settings when creating an instance-store (S3) AMI (OPTIONAL)
+#EC2_CERT = /path/to/your/cert-asdf0as9df092039asdfi02089.pem
+#EC2_PRIVATE_KEY = /path/to/your/pk-asdfasd890f200909.pem
+
+###########################
+## Defining EC2 Keypairs ##
+###########################
+# match your key name e.g.:
+[key id_rsa_ec2]
+KEY_LOCATION=path_to_your_key
+
+################################
+## Defining Cluster Templates ##
+################################
+#     $ starcluster start -c smallcluster scluster
+
+[cluster smallcluster]
+KEYNAME = id_rsa_ec2
+CLUSTER_SIZE = 1
+CLUSTER_USER = user
+CLUSTER_SHELL = bash
+
+# The base x86_64 StarCluster AMI is ami-3393a45a
+NODE_IMAGE_ID = ami-3393a45a
+NODE_INSTANCE_TYPE = c3.large
+
+# (defaults to NODE_INSTANCE_TYPE if not specified)
+# MASTER_INSTANCE_TYPE = 
+# MASTER_IMAGE_ID = ami-3393a45a
+# AVAILABILITY_ZONE = us-east-1
+# VOLUMES = data
+
+# SPOT_BID = 0.02
+# Uncomment to specify one or more userdata scripts to use when launching
+# cluster instances. Supports cloudinit. All scripts combined must be less than
+# 16KB
+#USERDATA_SCRIPTS = /path/to/script1, /path/to/script2
+
+PLUGINS = ipcluster, boto, webapp-packages-installer  
+# , hadoop
+
+
+###########################################
+## Defining Additional Cluster Templates ##
+###########################################
+
+# [cluster mediumcluster]
+# Declares that this cluster uses smallcluster as defaults
+# EXTENDS=smallcluster
+# This section is the same as smallcluster except for the following settings:
+# KEYNAME=myotherkey
+# NODE_INSTANCE_TYPE = c1.xlarge
+# CLUSTER_SIZE=8
+# VOLUMES = biodata2
+
+# [cluster largecluster]
+# Declares that this cluster uses mediumcluster as defaults
+# EXTENDS=mediumcluster
+# This section is the same as mediumcluster except for the following variables:
+# CLUSTER_SIZE=16
+
+#############################
+## Configuring EBS Volumes ##
+#############################
+
+# Sections starting with "volume" define your EBS volumes
+# [volume data]
+# VOLUME_ID = 
+# MOUNT_PATH = /data
+
+# PARTITION = 2
+
+############################################
+## Configuring Security Group Permissions ##
+############################################
+
+# open port 80 on the cluster to the world
+# [permission http]
+# IP_PROTOCOL = tcp
+# FROM_PORT = 80
+# TO_PORT = 80
+
+# open https on the cluster to the world
+# [permission https]
+# IP_PROTOCOL = tcp
+# FROM_PORT = 443
+# TO_PORT = 443
+
+# open port 80 on the cluster to an ip range using CIDR_IP
+# [permission http]
+# IP_PROTOCOL = tcp
+# FROM_PORT = 80
+# TO_PORT = 80
+# CIDR_IP = 18.0.0.0/8
+
+# restrict ssh access to a single ip address (<your_ip>)
+# [permission ssh]
+# IP_PROTOCOL = tcp
+# FROM_PORT = 22
+# TO_PORT = 22
+# CIDR_IP = <your_ip>/32
+
+
+#####################################
+## Configuring StarCluster Plugins ##
+#####################################
+
+# [plugin myplugin]
+# NOTE: myplugin module must either live in ~/.starcluster/plugins or be
+# on your PYTHONPATH
+# SETUP_CLASS = myplugin.SetupClass
+# extra settings are passed as __init__ arguments to your plugin:
+# SOME_PARAM_FOR_MY_PLUGIN = 1
+# SOME_OTHER_PARAM = 2
+
+######################
+## Built-in Plugins ##
+######################
+
+# Use this plugin to install one or more packages on all nodes
+# [plugin pkginstaller]
+# SETUP_CLASS = starcluster.plugins.pkginstaller.PackageInstaller
+# list of apt-get installable packages
+# PACKAGES = 
+
+[plugin webapp-packages-installer]
+setup_class = starcluster.plugins.pypkginstaller.PyPkgInstaller
+packages = FileChunkIO
+
+[plugin boto]
+setup_class = starcluster.plugins.boto.BotoPlugin
+
+[plugin ipcluster]
+SETUP_CLASS = starcluster.plugins.ipcluster.IPCluster
+ENABLE_NOTEBOOK = True
+NOTEBOOK_PASSWD = albeado-secret-password
+# NOTEBOOK_DIRECTORY = /path/to/notebook/dir
+# PACKER = pickle
+
+[plugin hadoop]
+SETUP_CLASS = starcluster.plugins.hadoop.Hadoop
+
+# Configure a distributed MySQL Cluster
+# [plugin mysqlcluster]
+# SETUP_CLASS = starcluster.plugins.mysql.MysqlCluster
+# NUM_REPLICAS = 2
+# DATA_MEMORY = 80M
+# INDEX_MEMORY = 18M
+# DUMP_FILE = test.sql
+# DUMP_INTERVAL = 60
+# DEDICATED_QUERY = True
+# NUM_DATA_NODES = 2
