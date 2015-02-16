@@ -89,7 +89,7 @@ myNet = convNet(opt)
 -- this is the definition of the net. we will rewrite the command line arguments to be able to define this and some options at runtime.
 -- then we can write a bash script to scan input space and find the best settings
 -- myNet:build({1,64,128,64,#species}, 2, 2)
-myNet:build({36,64}, {3,2,2}, {1,1,1}, {2,2,2})
+myNet:build({64,128}, {5,3,2}, {1,1,1}, {2,2,1})
 
 
 dofile 'config_optimizer.lua'  -- optim.sgd, optim.asgd, optim.lbfgs, optim.cg 
