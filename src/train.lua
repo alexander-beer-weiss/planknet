@@ -103,7 +103,7 @@ function train(epoch,localNet)  -- epoch counts number of times through training
 	--         print("==> time to learn 1 sample = " .. (time*1000) .. 'ms')
 
 	-- print confusion matrix
-	-- print(confusion)
+	print(confusion)
 	confusion:zero()
 
 	-- update logger/plot

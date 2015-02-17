@@ -68,8 +68,6 @@ function save_nets:prepNNdirs()
 		if paths.dir(self.netDatadir .. '/oldNets') then
 			print('==> deleting directory ' .. self.netDatadir .. '/oldNets')
 			paths.rmall(self.netDatadir .. '/oldNets', 'yes')
-			os.execute('ls ' .. self.netDatadir)
-			os.execute('ls ' .. self.netDatadir .. '/oldNets')
 		end
 		print('==> moving directory ' .. self.netDatadir .. '/newNets'
 		       .. ' to ' .. self.netDatadir .. '/oldNets')
@@ -88,7 +86,7 @@ end
 
 
 
-function save_nets:saveBestNet(NN_idx,date_string,hyperParams)
+function save_nets:saveBestNet(NN_idx,date_string,score,points_distr,hyperParams)
 	if not paths.dir(self.netDatadir .. '/bestNets') then
 		print('==> creating directory ' .. self.netDatadir .. '/bestNets')
 		paths.mkdir(self.netDatadir .. '/bestNets')
@@ -110,6 +108,16 @@ function save_nets:saveBestNet(NN_idx,date_string,hyperParams)
 
 	os.execute('cp ' .. self.netDatadir .. '/newNets/NN_' .. NN_idx ..'.dat '
 	                 .. self.netDatadir .. '/bestNets/' .. date_dir .. '/' .. time_dir .. time_append .. '/NN.dat')
+
+	if score then
+		local file_stream = io.open(self.netDatadir .. '/bestNets/' .. date_dir .. '/' .. time_dir .. time_append .. '/score', 'w')
+		file_stream:write(score, '\n')
+		file_stream:close()
+	end
+
+	if points_distr then
+		torch.save(self.netDatadir .. '/bestNets/' .. date_dir .. '/' .. time_dir .. time_append .. '/points.dat', points_distr)
+	end
 
 	if hyperParams then
 		torch.save(self.netDatadir .. '/bestNets/' .. date_dir .. '/' .. time_dir .. time_append .. '/hyperParams.dat', hyperParams)

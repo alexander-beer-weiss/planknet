@@ -18,6 +18,7 @@ cmd:option('-width', 32, 'rescale width')
 cmd:option('-rotations', false, 'perform rotations')
 cmd:option('-inversion', false, 'perform invresion')
 cmd:option('-warps', false, 'random warps')
+cmd:option('-minImageCount', 1, 'preprocess will produce at least minImageCount images for each species via warping')
 cmd:text()
 opt=cmd:parse(arg)
 

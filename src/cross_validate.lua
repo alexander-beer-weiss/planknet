@@ -49,7 +49,7 @@ function test(epoch,localNet)
 	print("==> time to test 1 sample = " .. (time*1000) .. 'ms')
 
 	-- print confusion matrix
-	-- print(confusion)
+	print(confusion)
 	local score = torch.sum(points)
 	print('Score: ' .. score)
 	--torch.save('../logprob/points_'..epoch..'.dat', torch.Tensor(points) )
@@ -69,5 +69,5 @@ function test(epoch,localNet)
 		parameters:copy(cachedparams)
 	end
 	
-	return(score)
+	return(points)
 end
