@@ -13,6 +13,7 @@ cmd:option('-testingdir', '../test', 'location of testing directory')
 cmd:option('-preprocesseddir', '../preprocessed', 'location of preprocessed directory')
 cmd:option('-height', 32, 'rescale height')
 cmd:option('-width', 32, 'rescale width')
+cmd:option('-preserveAspectRatio', false, 'if true, preserves aspect ratio of images during scaling')
 -- None of these are implemented yet. They will be simple to do eventually.
 -- this is at the image level. we'll have different place for these things during training.
 cmd:option('-rotations', false, 'perform rotations')
@@ -29,4 +30,4 @@ dl:loadFromJPG()
 
 h5=hdf5IO(opt)
 h5:writeToHDF5(dl.images, dl.data)
-h5:loadFromHDF5()
+--h5:loadFromHDF5()

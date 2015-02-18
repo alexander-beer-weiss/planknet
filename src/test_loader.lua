@@ -1,4 +1,17 @@
 
+function pad(img,height,width)
+	local aspect_ratio = width / height
+	if img:size(3) / img:size(2) > aspect_ratio then
+		local gap = img:size(3) / aspect_ratio - img:size(2)
+		img = nn.SpatialPadding(math.floor(gap/2), math.ceil(gap/2), 0, 0, 1):forward(img)  -- pad with ones
+	else
+		local gap = img:size(2) * aspect_ratio - img:size(3)
+		img = nn.SpatialPadding(0, 0, math.floor(gap/2), math.ceil(gap/2), 1):forward(img)  -- pad with ones
+	end	
+end
+
+
+
 test_loader = {}
 test_loader.__index = test_loader
 setmetatable(test_loader, {
@@ -46,6 +59,7 @@ function test_loader:loadTestBatch(batch_num,batch_size)
 
 	for i = start_index, end_index do  -- read in names of all jpeg files; make table of these names
 		local img = image.load(self.testingdir .. '/' .. self.file_names[i], 1, float)
+		if self.preserveAspectRatio then pad(img,self.height,self.width) end  -- add to testing code as well
 		img = image.scale(img,self.height, self.width)
 		img = img - torch.mean(img)
 		img = img / torch.std(img)

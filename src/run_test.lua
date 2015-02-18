@@ -16,6 +16,7 @@ cmd:option('-outputdir', '../predictions', 'location of output directory')
 cmd:option('-netDatadir', '../NNsave', 'location of neural net data directory')
 cmd:option('-height', 32, 'rescale height')
 cmd:option('-width', 32, 'rescale width')
+cmd:option('-preserveAspectRatio', false, 'if true, preserves aspect ratio of images during scaling')
 cmd:text()
 opt=cmd:parse(arg)
 
