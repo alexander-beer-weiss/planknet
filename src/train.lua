@@ -17,7 +17,8 @@ function table_shuffle(...)
 end
 
 
-function train(epoch,net)  -- epoch counts number of times through training data
+function train(epoch,netObject)  -- epoch counts number of times through training data
+  net=netObject:getNet()
   -- local vars
   local time = sys.clock()
   
@@ -52,10 +53,10 @@ function train(epoch,net)  -- epoch counts number of times through training data
       local batch_size = 0  -- keeps track of actual batch size (since last batch may be smaller)
       for batch_example = batch_start_example,math.min(batch_start_example + opt.batchSize - 1, #plankton_targets_train) do
         batch_size = batch_size + net:n_batch()
-        local err, output = net:augmentedTrainStep(plankton_images_train[batch_example], plankton_ids[ plankton_targets_train[batch_example] ])
+        local err, output = netObject:augmentedTrainStep(plankton_images_train[batch_example], plankton_ids[ plankton_targets_train[batch_example] ])
         f = f + err
         -- update confusion
-        for i=1,net:n_batch() do
+        for i=1,netObject:n_batch() do
           confusion:add(output[i], plankton_ids[ plankton_targets_train[batch_example] ])
         end
       end
@@ -75,11 +76,6 @@ function train(epoch,net)  -- epoch counts number of times through training data
     optimMethod(feval, net.parameters, optimState)
   end
 end
-
--- time taken
--- 	time = sys.clock() - time
--- 	time = time / #plankton_images_train
---         print("==> time to learn 1 sample = " .. (time*1000) .. 'ms')
 
 -- print confusion matrix
 print(confusion)
