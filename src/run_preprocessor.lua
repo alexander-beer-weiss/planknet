@@ -13,9 +13,10 @@ cmd:option('-testingdir', '../test', 'location of testing directory')
 cmd:option('-preprocesseddir', '../preprocessed', 'location of preprocessed directory')
 cmd:option('-height', 32, 'rescale height')
 cmd:option('-width', 32, 'rescale width')
+cmd:option('-minImageCount', 1, 'preprocess will produce at least minImageCount images for each species via warping')
+cmd:option('-warps', false, 'random warps')
 cmd:text()
 opt=cmd:parse(arg)
-
 
 -- now with objects
 dl = preprocessor(opt)
