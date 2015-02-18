@@ -18,16 +18,6 @@ function test(epoch,netObject)  -- epoch counts number of times through training
   print('==> testing on test set:')
   misclassify = {}
   local score=0
---   local score_dist={}
-  local bins=100
-  local max_score=16
-  local function score_index(s)
-    return math.max(math.floor(s*bins/max_score)+1,bins)
-  end
---   for i=1,bins do
---     score_dist[i]=0
---   end
-  
   for test_example = 1,#plankton_targets_cv do
     -- disp progress
     xlua.progress(test_example, #plankton_targets_cv)
@@ -39,7 +29,6 @@ function test(epoch,netObject)  -- epoch counts number of times through training
     local max_index = torch.LongTensor()
     pred.max(max_val,max_index,pred,1)
     local score_i = - math.min(pred[ plankton_ids[ plankton_targets_cv[test_example] ] ],max_score)
---     score_dist[score_index(score_i)] = score_dist[score_index(score_i)] + 1
     score = score + score_i
     
     --print('Prediction: ' .. species[ max_index[1] ])
@@ -56,9 +45,6 @@ function test(epoch,netObject)  -- epoch counts number of times through training
       confusion:add(pred, plankton_ids[ plankton_targets_cv[test_example] ])
     end
     score = score / #plankton_targets_cv
---     for i=1,bins do
---       score_dist[i]=score_dist[i] / #plankton_targets_cv
---     end
     -- timing
     time = sys.clock() - time
     time = time / #plankton_targets_cv
