@@ -13,6 +13,7 @@ function test(epoch,netObject)  -- epoch counts number of times through training
   
   -- test over test data
   print('==> testing on test set:')
+  local time = sys.clock()
   misclassify = {}
   local points = torch.Tensor(#plankton_targets_cv)
   for test_example = 1,#plankton_targets_cv do

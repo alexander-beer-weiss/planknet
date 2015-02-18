@@ -12,6 +12,7 @@ setmetatable(convNet, {
 
 function convNet.new(opt)
   local self = setmetatable({},convNet)
+  self.net=nn.Sequential()
   for key, value in pairs(opt) do
     self[key] = value
   end
@@ -32,7 +33,7 @@ trans_layer['Sigmoid']=nn.Sigmoid
 -- Example build
 -- parameters,gradParameters = myNet:build({1,64,64,128,#species}, 2, 5)
 function convNet:build(dimensions, kW, dW, pools)
-  self.net=nn.Sequential()
+  
   local normkernel = image.gaussian1D(3)
   out_dimensions=#species
   print('These dimensions should be integers. If not then you need to add padding')
@@ -88,11 +89,11 @@ function convNet:build(dimensions, kW, dW, pools)
 --   Final Layer
   self.net:add(nn.LogSoftMax())
   
-  self.criterion = nn.ClassNLLCriterion()
-  self.parameters, self.gradParameters = self.net:getParameters()
+  self:reset()
 end
 
 function convNet:reset()
+  self.criterion = nn.ClassNLLCriterion()
   self.parameters, self.gradParameters = self.net:getParameters()
 end
 
