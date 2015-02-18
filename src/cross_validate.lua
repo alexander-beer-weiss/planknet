@@ -4,7 +4,7 @@ require 'math'
 -- test function
 function test(epoch,netObject)  -- epoch counts number of times through training data
   
-  localNet = netObject:getNet()
+  local localNet = netObject:getNet()
   -- averaged param use?
   if average then
     cachedparams = parameters:clone()

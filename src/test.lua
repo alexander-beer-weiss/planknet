@@ -2,7 +2,7 @@
 
 -- test function
 function test(predictions, netObject, test_batch, batch_num)
-        localNet=netObject:getNet()
+        local localNet=netObject:getNet()
 	-- local vars
 	local time = sys.clock()
 

@@ -18,7 +18,6 @@ end
 
 
 function train(epoch,netObject)  -- epoch counts number of times through training data
-  net=netObject:getNet()
   -- local vars
   local time = sys.clock()
   
@@ -38,13 +37,13 @@ function train(epoch,netObject)  -- epoch counts number of times through trainin
     -- create closure to evaluate f(X) and df/dX
     local feval = function(x)
       -- get new net.parameters
-      if x ~= net.parameters then
-        net.parameters:copy(x)
+      if x ~= netObject.parameters then
+        netObject.parameters:copy(x)
       end
       --print(net.parameters)
       
       -- reset gradients
-      net.gradParameters:zero()
+      netObject.gradParameters:zero()
       
       -- f is the average of all net.criterions
       local f = 0
@@ -52,7 +51,7 @@ function train(epoch,netObject)  -- epoch counts number of times through trainin
       -- evaluate function for complete mini batch
       local batch_size = 0  -- keeps track of actual batch size (since last batch may be smaller)
       for batch_example = batch_start_example,math.min(batch_start_example + opt.batchSize - 1, #plankton_targets_train) do
-        batch_size = batch_size + net:n_batch()
+        batch_size = batch_size + netObject:n_batch()
         local err, output = netObject:augmentedTrainStep(plankton_images_train[batch_example], plankton_ids[ plankton_targets_train[batch_example] ])
         f = f + err
         -- update confusion
@@ -62,18 +61,18 @@ function train(epoch,netObject)  -- epoch counts number of times through trainin
       end
       
       -- normalize gradients and f(X)
-      net.gradParameters:div(batch_size)
+      netObject.gradParameters:div(batch_size)
       f = f / batch_size
       
       -- return f and df/dX
-      return f,net.gradParameters
+      return f,netObject.gradParameters
     end
   
   -- optimize on current mini-batch
   if optimMethod == optim.asgd then
-    _,_,average = optimMethod(feval, net.parameters, optimState)
+    _,_,average = optimMethod(feval, netObject.parameters, optimState)
   else
-    optimMethod(feval, net.parameters, optimState)
+    optimMethod(feval, netObject.parameters, optimState)
   end
 end
 

@@ -28,7 +28,7 @@ cmd:option('-learningRate', 1e-2, 'learning rate at t=0')  -- could make this va
 cmd:option('-batchSize', 10, 'mini-batch size (1 = pure stochastic)')
 cmd:option('-weightDecay', 0.0, 'weight decay (SGD only)')
 cmd:option('-transfer', 'ReLU', 'transfer function: Tanh | ReLU | Sigmoid')
-cmd:option('-dropout', '0,0,0,0', 'fraction of connections to drop: comma seperated numbers in the range 0 to 1')
+cmd:option('-dropout', '0,0.2,0.2', 'fraction of connections to drop: comma seperated numbers in the range 0 to 1')
 cmd:option('-momentum', 0, 'momentum (SGD only)')
 cmd:option('-t0', 4, 'start averaging at t0 (ASGD only), in nb of epochs')
 cmd:option('-maxIter', 2, 'maximum nb of iterations for CG and LBFGS')
@@ -100,7 +100,8 @@ if opt.loadNet~='' then
   print( 'Loading '.. opt.netDatadir..'/'..opt.loadNet..'.dat')
   myNet = torch.load(opt.netDatadir..'/'..opt.loadNet..'.dat')
 else
-  myNet:build({64,128}, {5,3,2}, {1,1,1}, {2,2,1})
+  print('Building a new net to train')
+  myNet:build({32,64}, {3,2,2}, {1,1,1}, {2,2,1})
 end
 
 dofile 'config_optimizer.lua'  -- optim.sgd, optim.asgd, optim.lbfgs, optim.cg 
