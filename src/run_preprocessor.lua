@@ -14,15 +14,10 @@ cmd:option('-preprocesseddir', '../preprocessed', 'location of preprocessed dire
 cmd:option('-height', 32, 'rescale height')
 cmd:option('-width', 32, 'rescale width')
 cmd:option('-preserveAspectRatio', false, 'if true, preserves aspect ratio of images during scaling')
--- None of these are implemented yet. They will be simple to do eventually.
--- this is at the image level. we'll have different place for these things during training.
-cmd:option('-rotations', false, 'perform rotations')
-cmd:option('-inversion', false, 'perform invresion')
-cmd:option('-warps', false, 'random warps')
 cmd:option('-minImageCount', 1, 'preprocess will produce at least minImageCount images for each species via warping')
+cmd:option('-warps', false, 'random warps')
 cmd:text()
 opt=cmd:parse(arg)
-
 
 -- now with objects
 dl = preprocessor(opt)
